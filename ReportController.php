@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Investor;
 use App\Services\ReportingService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -25,8 +24,8 @@ class ReportController extends Controller
 
     public function profitAndLoss(Request $request)
     {
-        $startDate = $request->get('start_date');
-        $endDate = $request->get('end_date');
+        $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->get('end_date', now()->endOfMonth()->format('Y-m-d'));
 
         $report = $this->reportingService->generateProfitLossStatement($startDate, $endDate);
         
@@ -35,10 +34,10 @@ class ReportController extends Controller
 
     public function investorProfitAndLoss(Request $request, Investor $investor)
     {
-        $startDate = $request->get('start_date');
-        $endDate = $request->get('end_date');
+        $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->get('end_date', now()->endOfMonth()->format('Y-m-d'));
 
-        $report = $this->reportingService->generateInvestorProfitLoss($investor, $startDate, $endDate);
+        $report = $this->reportingService->generateInvestorSpecificPL($investor->id, $startDate, $endDate);
 
         return view('owner.reports.investor-profit-loss', compact('report', 'investor', 'startDate', 'endDate'));
     }
