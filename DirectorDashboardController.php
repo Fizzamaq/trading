@@ -7,6 +7,7 @@ use App\Models\SalesInvoice;
 use App\Models\Customer;
 use App\Models\Supplier;
 use App\Models\InventoryLot;
+use App\Models\SalesPayment;
 use App\Services\InventoryService;
 use Illuminate\Http\Request;
 
@@ -113,8 +114,8 @@ public function inventory()
 
 public function payments()
 {
-    // Add payment logic here
-    $payments = collect(); // Replace with actual payment model
+    // Fetch paginated sales payments with customer relation
+    $payments = SalesPayment::with('customer')->paginate(15);
     return view('director.payments.index', compact('payments'));
 }
 
