@@ -76,13 +76,10 @@ public function index()
     ));
 }
 
-        public function purchases()
+    public function purchases()
     {
         // Fetch paginated purchases with supplier relation
         $purchases = PurchaseInvoice::with('supplier')->paginate(15);
-
-        // Debug line removed to avoid error. Uncomment when debugging.
-        // dd($purchases);
 
         // Return the purchases view with the data
         return view('director.purchases.index', compact('purchases'));
