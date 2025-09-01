@@ -26,11 +26,11 @@ class PurchaseInvoiceController extends Controller
 
     public function index()
     {
-        $purchaseInvoices = PurchaseInvoice::with(['supplier', 'creator'])
+        $purchases = PurchaseInvoice::with(['supplier', 'creator'])
             ->orderBy('invoice_date', 'desc')
             ->paginate(15);
 
-        return view('director.purchases.index', compact('purchaseInvoices'));
+        return view('director.purchases.index', compact('purchases'));
     }
 
     public function create()
