@@ -3,32 +3,30 @@
 @section('content')
 
 <div class="container mx-auto max-w-7xl p-8">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center justify-between flex-wrap mb-8">
         <div>
             <h1 class="text-4xl font-extrabold text-gray-900">Profit Distribution</h1>
-            <p class="text-gray-600 mt-2">Distribute monthly profits to investors</p>
+            <p class="text-gray-600 mt-2 text-wrap">Distribute monthly profits to investors</p>
         </div>
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-4 mt-4 lg:mt-0">
             <select class="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200">
                 <option>All Months</option>
                 <option>Pending Only</option>
                 <option>Distributed Only</option>
             </select>
-            <button class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-2 rounded-xl font-semibold transition duration-200 shadow-lg">
+            <a href="{{ route('owner.profit.distribution.export') }}" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-2 rounded-xl font-semibold transition duration-200 shadow-lg">
                 Export Report
-            </button>
+            </a>
         </div>
     </div>
 
-    <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div class="bg-gradient-to-br from-green-500 to-green-700 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition duration-300">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-green-100 text-sm font-medium mb-1">Available Profit</p>
-                    <p class="text-3xl font-bold">${{ number_format($totalProfit ?? 0, 2) }}</p>
-                    <p class="text-green-200 text-xs mt-1">Ready for distribution</p>
+                    <p class="text-3xl font-bold">PKR {{ number_format($totalProfit ?? 0, 2) }}</p>
+                    <p class="text-green-200 text-xs mt-1 text-wrap">Ready for distribution</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-xl p-3">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -42,7 +40,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-blue-100 text-sm font-medium mb-1">Total Distributed</p>
-                    <p class="text-3xl font-bold">${{ number_format($distributedAmount ?? 0, 2) }}</p>
+                    <p class="text-3xl font-bold">PKR {{ number_format($distributedAmount ?? 0, 2) }}</p>
                     <p class="text-blue-200 text-xs mt-1">All time</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-xl p-3">
@@ -58,7 +56,7 @@
                 <div>
                     <p class="text-purple-100 text-sm font-medium mb-1">Active Investors</p>
                     <p class="text-3xl font-bold">{{ ($monthlyProfits->first() && $monthlyProfits->first()->investorDistributions) ? $monthlyProfits->first()->investorDistributions->count() : 0 }}</p>
-                    <p class="text-purple-200 text-xs mt-1">Receiving distributions</p>
+                    <p class="text-purple-200 text-xs mt-1 text-wrap">Receiving distributions</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-xl p-3">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -72,8 +70,8 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-orange-100 text-sm font-medium mb-1">This Month</p>
-                    <p class="text-3xl font-bold">${{ number_format($monthlyProfits->where('profit_month', now()->startOfMonth())->first()->net_profit ?? 0, 2) }}</p>
-                    <p class="text-orange-200 text-xs mt-1">{{ now()->format('F Y') }}</p>
+                    <p class="text-3xl font-bold">PKR {{ number_format($monthlyProfits->where('profit_month', now()->startOfMonth())->first()->net_profit ?? 0, 2) }}</p>
+                    <p class="text-orange-200 text-xs mt-1 text-wrap">{{ now()->format('F Y') }}</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-xl p-3">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -84,9 +82,7 @@
         </div>
     </div>
 
-    <!-- Quick Actions & Available Months -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Quick Distribution -->
         <div class="bg-white rounded-2xl shadow-xl p-8">
             <h3 class="text-2xl font-bold text-gray-800 mb-6">Quick Distribution</h3>
             <form method="POST" action="{{ route('owner.profit.distribute') }}" class="space-y-6">
@@ -114,27 +110,25 @@
             </form>
         </div>
 
-        <!-- Distribution Summary -->
         <div class="bg-white rounded-2xl shadow-xl p-8">
             <h3 class="text-2xl font-bold text-gray-800 mb-6">Distribution Overview</h3>
             <div class="space-y-4">
                 <div class="flex justify-between items-center p-4 bg-green-50 rounded-xl">
-                    <span class="font-semibold text-gray-700">Available for Distribution</span>
-                    <span class="text-2xl font-bold text-green-600">${{ number_format($totalProfit ?? 0, 2) }}</span>
+                    <span class="font-semibold text-gray-700 text-wrap">Available for Distribution</span>
+                    <span class="text-2xl font-bold text-green-600">PKR {{ number_format($totalProfit ?? 0, 2) }}</span>
                 </div>
                 <div class="flex justify-between items-center p-4 bg-blue-50 rounded-xl">
                     <span class="font-semibold text-gray-700">Already Distributed</span>
-                    <span class="text-2xl font-bold text-blue-600">${{ number_format($distributedAmount ?? 0, 2) }}</span>
+                    <span class="text-2xl font-bold text-blue-600">PKR {{ number_format($distributedAmount ?? 0, 2) }}</span>
                 </div>
                 <div class="flex justify-between items-center p-4 bg-purple-50 rounded-xl border-2 border-purple-200">
                     <span class="font-bold text-gray-800">Total Profit</span>
-                    <span class="text-2xl font-bold text-purple-600">${{ number_format(($totalProfit ?? 0) + ($distributedAmount ?? 0), 2) }}</span>
+                    <span class="text-2xl font-bold text-purple-600">PKR {{ number_format(($totalProfit ?? 0) + ($distributedAmount ?? 0), 2) }}</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Monthly Profits Table -->
     <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
         <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 border-b border-gray-200">
             <h3 class="text-2xl font-bold text-gray-800">Monthly Profit History</h3>
@@ -158,17 +152,17 @@
                     @forelse ($monthlyProfits ?? [] as $profit)
                         <tr class="hover:bg-gray-50 transition-colors duration-200">
                             <td class="px-8 py-6">
-                                <div class="text-lg font-semibold text-gray-900">{{ $profit->profit_month->format('F Y') }}</div>
+                                <div class="text-lg font-semibold text-gray-900 text-wrap">{{ $profit->profit_month->format('F Y') }}</div>
                                 <div class="text-sm text-gray-500">{{ $profit->profit_month->format('M d, Y') }}</div>
                             </td>
                             <td class="px-8 py-6">
-                                <div class="text-lg font-bold text-blue-600">${{ number_format($profit->total_revenue ?? 0, 2) }}</div>
+                                <div class="text-lg font-bold text-blue-600">PKR {{ number_format($profit->total_revenue ?? 0, 2) }}</div>
                             </td>
                             <td class="px-8 py-6">
-                                <div class="text-lg font-bold text-red-600">${{ number_format($profit->total_expenses ?? 0, 2) }}</div>
+                                <div class="text-lg font-bold text-red-600">PKR {{ number_format($profit->total_expenses ?? 0, 2) }}</div>
                             </td>
                             <td class="px-8 py-6">
-                                <div class="text-lg font-bold text-green-600">${{ number_format($profit->net_profit ?? 0, 2) }}</div>
+                                <div class="text-lg font-bold text-green-600">PKR {{ number_format($profit->net_profit ?? 0, 2) }}</div>
                             </td>
                             <td class="px-8 py-6">
                                 @if($profit->distribution_completed)
@@ -227,7 +221,6 @@
         @endif
     </div>
 
-    <!-- Distribution History -->
     <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
         <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 border-b border-gray-200">
             <h3 class="text-2xl font-bold text-gray-800">Distribution History</h3>
@@ -257,7 +250,7 @@
                                 <div class="text-sm text-gray-900">{{ $distribution->distribution_month->format('F Y') }}</div>
                             </td>
                             <td class="px-8 py-6">
-                                <div class="text-lg font-bold text-green-600">${{ number_format($distribution->total_amount ?? 0, 2) }}</div>
+                                <div class="text-lg font-bold text-green-600">PKR {{ number_format($distribution->total_amount ?? 0, 2) }}</div>
                             </td>
                             <td class="px-8 py-6">
                                 <div class="text-sm text-gray-900">{{ $distribution->total_investors ?? 0 }} investors</div>
