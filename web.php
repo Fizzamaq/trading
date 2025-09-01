@@ -8,6 +8,16 @@ use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Owner\InvestorManagementController;
 use App\Http\Controllers\Director\DirectorDashboardController;
 use App\Http\Controllers\Director\PurchaseInvoiceController;
+use App\Http\Controllers\Director\SalesInvoiceController;
+use App\Http\Controllers\Director\SalesPaymentController;
+use App\Http\Controllers\Director\ExpenseController;
+use App\Http\Controllers\Director\SupplierController;
+use App\Http\Controllers\Owner\ReportController;
+use App\Http\Controllers\Owner\UserController;
+use App\Http\Controllers\Owner\SettingController;
+use App\Http\Controllers\Owner\TransactionController;
+use App\Http\Controllers\Owner\AuditLogsController;
+use App\Http\Controllers\Owner\HelpAndSupportController;
 use App\Http\Controllers\Investor\InvestorDashboardController;
 
 // Public routes
@@ -39,28 +49,50 @@ Route::middleware(['auth', 'owner'])->prefix('owner')->name('owner.')->group(fun
     Route::post('investor-requests/{request}/approve', [InvestorManagementController::class, 'approveRequest'])->name('investor-requests.approve');
     Route::post('investor-requests/{request}/reject', [InvestorManagementController::class, 'rejectRequest'])->name('investor-requests.reject');
     
+    // Expense Approval Routes
+    Route::get('expense-requests', [OwnerDashboardController::class, 'expenseRequests'])->name('expense.requests');
+    Route::post('expense-requests/{expense}/approve', [OwnerDashboardController::class, 'approveExpense'])->name('expense.requests.approve');
+    Route::post('expense-requests/{expense}/reject', [OwnerDashboardController::class, 'rejectExpense'])->name('expense.requests.reject');
+    
     // Profit Distribution
     Route::get('profit-distribution', [OwnerDashboardController::class, 'profitDistribution'])->name('profit.distribution');
     Route::post('profit-distribution', [OwnerDashboardController::class, 'distributeProfit'])->name('profit.distribute');
-    
+    Route::get('profit-distribution/export', [OwnerDashboardController::class, 'exportProfitReport'])->name('profit.distribution.export');
+
     // Investor Management
     Route::patch('investors/{user}/approve', [OwnerDashboardController::class, 'approveInvestor'])->name('investors.approve');
     Route::patch('investors/{user}/reject', [OwnerDashboardController::class, 'rejectInvestor'])->name('investors.reject');
     
-    // Reports - commented out until controller is created
-    // Route::get('reports', [App\Http\Controllers\Owner\ReportController::class, 'index'])->name('reports.index');
+    // Reports
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('profit-loss', [ReportController::class, 'profitAndLoss'])->name('profit-loss');
+        Route::get('investor-pl/{investor}', [ReportController::class, 'investorProfitAndLoss'])->name('investor-pl');
+        Route::get('ar-aging', [ReportController::class, 'arAging'])->name('ar-aging');
+        Route::get('ap-aging', [ReportController::class, 'apAging'])->name('ap-aging');
+    });
+    
+    // New Owner Routes from Sidebar
+    Route::resource('users', UserController::class);
+    Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::resource('transactions', TransactionController::class)->except('show');
+    Route::get('transactions/export', [TransactionController::class, 'export'])->name('transactions.export');
+    Route::get('audit-logs', [AuditLogsController::class, 'index'])->name('audit-logs');
+    Route::get('help-and-support', [HelpAndSupportController::class, 'index'])->name('help-and-support');
 });
 
 // Director routes - CLEAN VERSION
 Route::middleware(['auth', 'role:director,owner'])->prefix('director')->name('director.')->group(function () {
     Route::get('/dashboard', [DirectorDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/purchases', [DirectorDashboardController::class, 'purchases'])->name('purchases.index');
-    Route::get('/sales', [DirectorDashboardController::class, 'sales'])->name('sales.index');
+    Route::resource('purchases', PurchaseInvoiceController::class);
+    Route::resource('sales', SalesInvoiceController::class);
+    Route::resource('sales-payments', SalesPaymentController::class);
+    Route::resource('expenses', ExpenseController::class);
+    Route::resource('suppliers', SupplierController::class);
     Route::get('/customers', [DirectorDashboardController::class, 'customers'])->name('customers.index');
-    Route::get('/suppliers', [DirectorDashboardController::class, 'suppliers'])->name('suppliers.index');
     Route::get('/inventory', [DirectorDashboardController::class, 'inventory'])->name('inventory.index');
     Route::get('/payments', [DirectorDashboardController::class, 'payments'])->name('payments.index');
-    Route::get('/expenses', [DirectorDashboardController::class, 'expenses'])->name('expenses.index');
 });
 
 // Investor routes
