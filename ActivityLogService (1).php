@@ -4,58 +4,18 @@ namespace App\Services;
 
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 
 class ActivityLogService
 {
-    public function logActivity($data)
-    {
-        return ActivityLog::create([
-            'user_id' => $data['user_id'] ?? Auth::id(),
-            'action' => $data['action'],
-            'model_type' => $data['model_type'] ?? null,
-            'model_id' => $data['model_id'] ?? null,
-            'old_values' => $data['old_values'] ?? null,
-            'new_values' => $data['new_values'] ?? null,
-            'ip_address' => $data['ip_address'] ?? Request::ip(),
-            'user_agent' => $data['user_agent'] ?? Request::userAgent(),
-        ]);
-    }
-
-    public function logModelCreated($model)
-    {
-        return $this->logActivity([
-            'action' => 'created',
-            'model_type' => get_class($model),
-            'model_id' => $model->id,
-            'new_values' => $model->toArray(),
-        ]);
-    }
-
-    public function logModelUpdated($model, $oldValues)
-    {
-        return $this->logActivity([
-            'action' => 'updated',
-            'model_type' => get_class($model),
-            'model_id' => $model->id,
-            'old_values' => $oldValues,
-            'new_values' => $model->getChanges(),
-        ]);
-    }
-
-    public function logModelDeleted($model)
-    {
-        return $this->logActivity([
-            'action' => 'deleted',
-            'model_type' => get_class($model),
-            'model_id' => $model->id,
-            'old_values' => $model->toArray(),
-        ]);
-    }
-
+    /**
+     * Log a user login event.
+     *
+     * @param \App\Models\User $user
+     */
     public function logUserLogin($user)
     {
-        return $this->logActivity([
+        $this->logActivity([
             'user_id' => $user->id,
             'action' => 'login',
             'model_type' => get_class($user),
@@ -63,13 +23,68 @@ class ActivityLogService
         ]);
     }
 
+    /**
+     * Log a user logout event.
+     *
+     * @param \App\Models\User $user
+     */
     public function logUserLogout($user)
     {
-        return $this->logActivity([
+        $this->logActivity([
             'user_id' => $user->id,
             'action' => 'logout',
             'model_type' => get_class($user),
             'model_id' => $user->id,
         ]);
+    }
+
+    /**
+     * Log a model creation event.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     */
+    public function logModelCreated($model)
+    {
+        $this->logActivity([
+            'user_id' => Auth::id(),
+            'action' => 'created_' . $model->getTable(),
+            'model_type' => get_class($model),
+            'model_id' => $model->id,
+            'new_values' => $model->toArray(),
+        ]);
+    }
+
+    /**
+     * Log a model update event.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     * @param array $oldValues
+     */
+    public function logModelUpdated($model, array $oldValues)
+    {
+        $this->logActivity([
+            'user_id' => Auth::id(),
+            'action' => 'updated_' . $model->getTable(),
+            'model_type' => get_class($model),
+            'model_id' => $model->id,
+            'old_values' => $oldValues,
+            'new_values' => $model->getChanges(),
+        ]);
+    }
+
+    /**
+     * Log a generic activity with provided data.
+     *
+     * @param array $data
+     */
+    public function logActivity(array $data)
+    {
+        $request = app(Request::class);
+        $data = array_merge([
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ], $data);
+
+        ActivityLog::create($data);
     }
 }
