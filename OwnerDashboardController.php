@@ -13,19 +13,26 @@ use App\Models\MonthlyProfit;
 use App\Models\InvestorRequest;
 use App\Services\ReportingService;
 use App\Services\ProfitDistributionService;
+use App\Services\ActivityLogService;
+use App\Services\AccountingService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OwnerDashboardController extends Controller
 {
     protected $reportingService;
     protected $profitDistributionService;
+    protected $activityLogService;
+    protected $accountingService;
 
-    public function __construct(ReportingService $reportingService, ProfitDistributionService $profitDistributionService)
+    public function __construct(ReportingService $reportingService, ProfitDistributionService $profitDistributionService, ActivityLogService $activityLogService, AccountingService $accountingService)
     {
         $this->middleware(['auth', 'owner']);
         $this->reportingService = $reportingService;
         $this->profitDistributionService = $profitDistributionService;
+        $this->activityLogService = $activityLogService;
+        $this->accountingService = $accountingService;
     }
 
 public function index(Request $request)
@@ -62,8 +69,9 @@ public function index(Request $request)
         $query->where('status', 'active');
     })->sum('investment_amount');
 
-    $pendingRequests = InvestorRequest::where('status', 'pending')->count(); // Just count for sidebar notification
-
+    $pendingRequests = InvestorRequest::where('status', 'pending')->count();
+    $pendingExpenses = Expense::where('status', 'pending')->count();
+    
     $totalSales = SalesInvoice::whereBetween('invoice_date', [$startDate, $endDate])
         ->sum('total_amount');
 
@@ -98,10 +106,11 @@ public function index(Request $request)
     return view('owner.dashboard', compact(
         'totalInvestors',
         'totalInvestment',
-        'pendingRequests',    // Just count for notification badge
+        'pendingRequests',
+        'pendingExpenses',
         'totalSales',
         'totalExpenses',
-        'netProfit',          // Add this for profit display
+        'netProfit',
         'plData',
         'recentSales',
         'recentExpenses',
@@ -196,5 +205,84 @@ public function index(Request $request)
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to distribute profit: ' . $e->getMessage());
         }
+    }
+
+    public function exportProfitReport()
+    {
+        $monthlyProfits = MonthlyProfit::with('investorDistributions.investor.user')
+            ->orderBy('profit_month', 'desc')
+            ->get();
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="profit_distribution_report_' . now()->format('Y-m-d') . '.csv"',
+        ];
+
+        $callback = function() use ($monthlyProfits) {
+            $file = fopen('php://output', 'w');
+            
+            // CSV Header
+            fputcsv($file, ['Month', 'Net Profit', 'Total Investors', 'Distributed Date']);
+
+            // CSV Data
+            foreach ($monthlyProfits as $profit) {
+                fputcsv($file, [
+                    $profit->profit_month->format('F Y'),
+                    $profit->net_profit,
+                    $profit->investorDistributions->count(),
+                    $profit->distribution_date ? $profit->distribution_date->format('Y-m-d') : 'N/A',
+                ]);
+            }
+            fclose($file);
+        };
+        
+        return new StreamedResponse($callback, 200, $headers);
+    }
+
+    public function expenseRequests()
+    {
+        $pendingExpenses = Expense::with('category', 'creator')
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return view('owner.expense-requests', compact('pendingExpenses'));
+    }
+
+    public function approveExpense(Request $request, Expense $expense)
+    {
+        if ($expense->status !== 'pending') {
+            return redirect()->back()->with('error', 'Expense has already been processed.');
+        }
+
+        $original = $expense->getOriginal();
+        $expense->status = 'approved';
+        $expense->save();
+
+        // Log the approval action
+        $this->activityLogService->logModelUpdated($expense, $original);
+        
+        // This is the point where the accounting transaction is created
+        $this->accountingService->createExpenseTransaction($expense);
+
+        return redirect()->route('owner.expense.requests')
+            ->with('success', 'Expense approved successfully.');
+    }
+
+    public function rejectExpense(Request $request, Expense $expense)
+    {
+        if ($expense->status !== 'pending') {
+            return redirect()->back()->with('error', 'Expense has already been processed.');
+        }
+        
+        $original = $expense->getOriginal();
+        $expense->status = 'rejected';
+        $expense->save();
+
+        // Log the rejection action
+        $this->activityLogService->logModelUpdated($expense, $original);
+
+        return redirect()->route('owner.expense.requests')
+            ->with('success', 'Expense rejected.');
     }
 }
