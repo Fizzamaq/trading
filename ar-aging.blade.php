@@ -1,22 +1,22 @@
 @extends('layouts.owner')
-@section('title', 'Accounts Payable Aging')
+@section('title', 'Accounts Receivable Aging')
 @section('content')
 
 <div class="container mx-auto max-w-7xl p-8">
     <div class="flex items-center justify-between mb-8">
         <div>
-            <h1 class="text-4xl font-extrabold text-gray-900">Accounts Payable Aging</h1>
-            <p class="text-gray-600 mt-2">Outstanding purchase invoices categorized by their age</p>
+            <h1 class="text-4xl font-extrabold text-gray-900">Accounts Receivable Aging</h1>
+            <p class="text-gray-600 mt-2">Outstanding sales invoices categorized by their age</p>
         </div>
         <a href="{{ route('owner.reports.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-semibold transition duration-200">
             Back to Reports
         </a>
     </div>
 
-    @forelse ($agingReport as $supplierName => $agingBuckets)
+    @forelse ($agingReport as $customerName => $agingBuckets)
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
             <div class="bg-gray-50 px-8 py-6 border-b border-gray-200">
-                <h3 class="text-2xl font-bold text-gray-800">{{ $supplierName }}</h3>
+                <h3 class="text-2xl font-bold text-gray-800">{{ $customerName }}</h3>
             </div>
             
             @foreach($agingBuckets as $bucket => $invoices)
@@ -55,7 +55,7 @@
         </div>
     @empty
         <div class="bg-white rounded-2xl shadow-xl p-8 text-center text-gray-400 italic">
-            No outstanding purchase invoices found.
+            No outstanding sales invoices found.
         </div>
     @endforelse
 </div>
