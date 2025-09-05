@@ -28,6 +28,9 @@ public function index()
         ->orderBy('created_at', 'desc')
         ->limit(5)
         ->get();
+    
+    // Calculate total sales for the dashboard card
+    $totalSalesAmount = $recentSales->sum('total_amount');
 
     // Get recent purchases 
     $recentPurchases = PurchaseInvoice::with('supplier')
@@ -45,6 +48,11 @@ public function index()
     // Get inventory data with null safety
     $inventoryItems = InventoryLot::where('remaining_quantity', '>', 0)->get();
     
+    // Calculate total inventory value for the dashboard card
+    $totalInventoryValue = $inventoryItems->sum(function($item) {
+        return $item->remaining_quantity * $item->unit_cost;
+    });
+
     // Get low stock items (less than 10% of original quantity)
     $lowStockItems = InventoryLot::whereRaw('remaining_quantity < (original_quantity * 0.1)')
         ->where('remaining_quantity', '>', 0)
@@ -67,11 +75,13 @@ public function index()
 
     return view('director.dashboard', compact(
         'recentSales',
+        'totalSalesAmount',
         'recentPurchases',
         'activeCustomers', 
         'newCustomersCount',
         'activeSuppliers',
         'inventoryItems',
+        'totalInventoryValue',
         'lowStockItems'
     ));
 }
@@ -105,7 +115,7 @@ public function suppliers()
 
 public function inventory()
 {
-    $inventoryItems = InventoryLot::with('product')->paginate(15);
+    $inventoryItems = InventoryLot::paginate(15);
     return view('director.inventory.index', compact('inventoryItems'));
 }
 
