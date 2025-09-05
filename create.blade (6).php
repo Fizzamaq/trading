@@ -79,7 +79,7 @@
                             <div class="text-right">
                                 <label class="block text-xs font-medium text-gray-500 mb-1">Line Total</label>
                                 <span class="text-lg font-bold text-gray-800 line-total">
-                                    ${{ number_format($item['quantity'] * $item['unit_price'], 2) }}
+                                    PKR {{ number_format($item['quantity'] * $item['unit_price'], 2) }}
                                 </span>
                             </div>
                             <div class="flex justify-end">
@@ -115,7 +115,7 @@
                         </div>
                         <div class="text-right">
                             <label class="block text-xs font-medium text-gray-500 mb-1">Line Total</label>
-                            <span class="text-lg font-bold text-gray-800 line-total">$0.00</span>
+                            <span class="text-lg font-bold text-gray-800 line-total">PKR 0.00</span>
                         </div>
                         <div class="flex justify-end">
                             <button type="button" class="remove-item-btn text-red-500 hover:text-red-700 transition duration-200">
@@ -133,7 +133,7 @@
                     Add Another Item
                 </button>
                 <div class="text-right text-2xl font-black text-gray-800">
-                    Total Amount: <span id="total-amount">${{ number_format(0, 2) }}</span>
+                    Total Amount: <span id="total-amount">PKR 0.00</span>
                 </div>
             </div>
 
@@ -157,10 +157,10 @@
                 const quantity = parseFloat($(this).find('.item-quantity').val()) || 0;
                 const price = parseFloat($(this).find('.item-price').val()) || 0;
                 const lineTotal = quantity * price;
-                $(this).find('.line-total').text('$' + lineTotal.toFixed(2));
+                $(this).find('.line-total').text('PKR ' + lineTotal.toFixed(2));
                 totalAmount += lineTotal;
             });
-            $('#total-amount').text('$' + totalAmount.toFixed(2));
+            $('#total-amount').text('PKR ' + totalAmount.toFixed(2));
         }
 
         function addItemRow() {
@@ -188,7 +188,7 @@
                     </div>
                     <div class="text-right">
                         <label class="block text-xs font-medium text-gray-500 mb-1">Line Total</label>
-                        <span class="text-lg font-bold text-gray-800 line-total">$0.00</span>
+                        <span class="text-lg font-bold text-gray-800 line-total">PKR 0.00</span>
                     </div>
                     <div class="flex justify-end">
                         <button type="button" class="remove-item-btn text-red-500 hover:text-red-700 transition duration-200">
@@ -202,6 +202,10 @@
             $('#items-container').append(newItemRow);
             itemIndex++;
             calculateTotals();
+        }
+
+        if (itemIndex === 0) {
+            addItemRow();
         }
 
         $('#add-item-btn').on('click', addItemRow);
