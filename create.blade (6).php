@@ -28,7 +28,12 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                    <label for="supplier_id" class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
+                    <div class="flex items-center justify-between">
+                        <label for="supplier_id" class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
+                        <a href="{{ route('director.suppliers.create') }}" class="text-purple-600 hover:text-purple-800 text-sm font-semibold">
+                            + Add Supplier
+                        </a>
+                    </div>
                     <select name="supplier_id" id="supplier_id" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition duration-200">
                         <option value="">Select a Supplier</option>
@@ -63,8 +68,8 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-500 mb-1">Lot Number</label>
-                                <input type="text" name="items[{{ $key }}][lot_number]" value="{{ $item['lot_number'] }}" required
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg item-lot-number">
+                                <span class="block w-full px-3 py-2 bg-gray-200 rounded-lg text-gray-800 font-semibold lot-number-display"></span>
+                                <input type="hidden" name="items[{{ $key }}][lot_number]" class="item-lot-number">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-500 mb-1">Quantity</label>
@@ -100,8 +105,8 @@
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-500 mb-1">Lot Number</label>
-                            <input type="text" name="items[0][lot_number]" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg item-lot-number">
+                            <span class="block w-full px-3 py-2 bg-gray-200 rounded-lg text-gray-800 font-semibold lot-number-display"></span>
+                            <input type="hidden" name="items[0][lot_number]" class="item-lot-number">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-500 mb-1">Quantity</label>
@@ -150,6 +155,8 @@
 <script>
     $(document).ready(function() {
         let itemIndex = {{ count(old('items', [])) }};
+        const initialLotNumberBase = parseInt(`{{ substr($initialLotNumber ?? now()->format('ymd') . '001', -3) }}`);
+        const initialLotNumberPrefix = `{{ substr($initialLotNumber ?? now()->format('ymd') . '001', 0, 6) }}`;
 
         function calculateTotals() {
             let totalAmount = 0;
@@ -163,6 +170,15 @@
             $('#total-amount').text('PKR ' + totalAmount.toFixed(2));
         }
 
+        function updateLotNumbers() {
+            $('.item-row').each(function(index) {
+                const lotNumberSuffix = String(initialLotNumberBase + index).padStart(3, '0');
+                const lotNumber = initialLotNumberPrefix + lotNumberSuffix;
+                $(this).find('.item-lot-number').val(lotNumber);
+                $(this).find('.lot-number-display').text(lotNumber);
+            });
+        }
+
         function addItemRow() {
             const newItemRow = `
                 <div class="item-row grid grid-cols-1 md:grid-cols-6 gap-4 items-center bg-gray-50 p-4 rounded-xl border border-gray-200">
@@ -173,8 +189,8 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 mb-1">Lot Number</label>
-                        <input type="text" name="items[${itemIndex}][lot_number]" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg item-lot-number">
+                        <span class="block w-full px-3 py-2 bg-gray-200 rounded-lg text-gray-800 font-semibold lot-number-display"></span>
+                        <input type="hidden" name="items[${itemIndex}][lot_number]" class="item-lot-number">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 mb-1">Quantity</label>
@@ -194,24 +210,67 @@
                         <button type="button" class="remove-item-btn text-red-500 hover:text-red-700 transition duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-1 12H6L5 7m14 0H5m14 0V5a2 2 0 00-2-2H7a2 2 0 00-2 2v2m7 4v6m-4-6v6m8-6v6" />
-                            </svg>
+                                </svg>
                         </button>
                     </div>
                 </div>
             `;
             $('#items-container').append(newItemRow);
             itemIndex++;
+            updateLotNumbers();
             calculateTotals();
         }
 
-        if (itemIndex === 0) {
-            addItemRow();
+        if (itemIndex > 0) {
+            updateLotNumbers();
         }
 
-        $('#add-item-btn').on('click', addItemRow);
+        $('#add-item-btn').on('click', function() {
+             // Use a closure-based approach to get the current count of rows and determine the next index
+            const currentRowCount = $('.item-row').length;
+            const newItemRow = `
+                <div class="item-row grid grid-cols-1 md:grid-cols-6 gap-4 items-center bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Product Name</label>
+                        <input type="text" name="items[${currentRowCount}][product_name]" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg item-product">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Lot Number</label>
+                        <span class="block w-full px-3 py-2 bg-gray-200 rounded-lg text-gray-800 font-semibold lot-number-display"></span>
+                        <input type="hidden" name="items[${currentRowCount}][lot_number]" class="item-lot-number">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Quantity</label>
+                        <input type="number" name="items[${currentRowCount}][quantity]" step="0.001" min="0.001" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg item-quantity">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Unit Price</label>
+                        <input type="number" name="items[${currentRowCount}][unit_price]" step="0.01" min="0.01" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg item-price">
+                    </div>
+                    <div class="text-right">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Line Total</label>
+                        <span class="text-lg font-bold text-gray-800 line-total">PKR 0.00</span>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="button" class="remove-item-btn text-red-500 hover:text-red-700 transition duration-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-1 12H6L5 7m14 0H5m14 0V5a2 2 0 00-2-2H7a2 2 0 00-2 2v2m7 4v6m-4-6v6m8-6v6" />
+                                </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            $('#items-container').append(newItemRow);
+            updateLotNumbers();
+            calculateTotals();
+        });
 
         $(document).on('click', '.remove-item-btn', function() {
             $(this).closest('.item-row').remove();
+            updateLotNumbers();
             calculateTotals();
         });
 
