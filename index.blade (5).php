@@ -4,23 +4,22 @@
 
 <div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
     <div class="container mx-auto max-w-7xl p-8">
-        <!-- Premium Header -->
-        <div class="flex items-center justify-between mb-10">
+        <div class="flex items-center justify-between flex-wrap mb-10">
             <div>
                 <h1 class="text-5xl font-black text-gray-900 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     Sales Command Center
                 </h1>
-                <p class="text-xl text-gray-600 mt-3 font-semibold">Revenue operations & customer transaction management</p>
+                <p class="text-xl text-gray-600 mt-3 font-semibold text-wrap">Revenue operations & customer transaction management</p>
                 <div class="flex items-center mt-4 space-x-4">
                     <div class="flex items-center text-blue-600">
                         <div class="w-3 h-3 bg-blue-500 rounded-full animate-pulse mr-2"></div>
                         <span class="font-semibold">Live Sales Tracking</span>
                     </div>
                     <div class="text-gray-400">•</div>
-                    <span class="text-gray-600 font-medium">{{ ($sales ?? collect())->count() }} total transactions</span>
+                    <span class="text-gray-600 font-medium text-wrap">{{ ($sales ?? collect())->count() }} total transactions</span>
                 </div>
             </div>
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-4 mt-4 lg:mt-0">
                 <input type="text" placeholder="Search transactions..." 
                        class="px-6 py-3 bg-white/80 backdrop-blur-lg border-2 border-blue-200 rounded-2xl focus:ring-4 focus:ring-blue-500 focus:border-blue-500 transition duration-300 text-lg font-semibold shadow-lg placeholder-gray-500">
                 <select class="px-6 py-3 bg-white/80 backdrop-blur-lg border-2 border-blue-200 rounded-2xl focus:ring-4 focus:ring-blue-500 focus:border-blue-500 transition duration-300 text-lg font-semibold shadow-lg">
@@ -29,18 +28,16 @@
                     <option>Pending</option>
                     <option>Overdue</option>
                 </select>
-                <button class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-800 text-white px-8 py-3 rounded-2xl font-bold text-lg transition duration-300 shadow-2xl transform hover:scale-105">
+                <a href="{{ route('director.sales.create') }}" class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-800 text-white px-8 py-3 rounded-2xl font-bold text-lg transition duration-300 shadow-2xl transform hover:scale-105">
                     <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                     </svg>
                     New Sale
-                </button>
+                </a>
             </div>
         </div>
 
-        <!-- Revenue Analytics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-            <!-- Total Revenue Card -->
             <div class="group relative bg-gradient-to-br from-emerald-500 via-green-600 to-teal-700 rounded-3xl p-8 text-white shadow-2xl transform hover:scale-110 transition duration-500 hover:shadow-emerald-500/40 overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
                 <div class="relative z-10">
@@ -55,7 +52,7 @@
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <div class="text-4xl font-black">${{ number_format(($sales ?? collect())->sum('total_amount'), 2) }}</div>
+                        <div class="text-4xl font-black">PKR {{ number_format(($sales ?? collect())->sum('total_amount'), 2) }}</div>
                         <div class="flex items-center text-emerald-200 text-sm font-semibold">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M7,14L12,9L17,14H7Z"/>
@@ -67,7 +64,6 @@
                 </div>
             </div>
 
-            <!-- Paid Sales Card -->
             <div class="group relative bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 rounded-3xl p-8 text-white shadow-2xl transform hover:scale-110 transition duration-500 hover:shadow-blue-500/40 overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
                 <div class="relative z-10">
@@ -82,7 +78,7 @@
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <div class="text-4xl font-black">${{ number_format(($sales ?? collect())->where('status', 'paid')->sum('total_amount'), 2) }}</div>
+                        <div class="text-4xl font-black">PKR {{ number_format(($sales ?? collect())->where('status', 'paid')->sum('total_amount'), 2) }}</div>
                         <div class="flex items-center text-blue-200 text-sm font-semibold">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
@@ -94,7 +90,6 @@
                 </div>
             </div>
 
-            <!-- Pending Sales Card -->
             <div class="group relative bg-gradient-to-br from-amber-500 via-orange-600 to-yellow-700 rounded-3xl p-8 text-white shadow-2xl transform hover:scale-110 transition duration-500 hover:shadow-amber-500/40 overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
                 <div class="relative z-10">
@@ -109,7 +104,7 @@
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <div class="text-4xl font-black">${{ number_format(($sales ?? collect())->where('status', 'pending')->sum('total_amount'), 2) }}</div>
+                        <div class="text-4xl font-black">PKR {{ number_format(($sales ?? collect())->where('status', 'pending')->sum('total_amount'), 2) }}</div>
                         <div class="flex items-center text-amber-200 text-sm font-semibold">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
@@ -121,7 +116,6 @@
                 </div>
             </div>
 
-            <!-- Average Transaction Card -->
             <div class="group relative bg-gradient-to-br from-violet-500 via-purple-600 to-fuchsia-700 rounded-3xl p-8 text-white shadow-2xl transform hover:scale-110 transition duration-500 hover:shadow-violet-500/40 overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
                 <div class="relative z-10">
@@ -136,7 +130,7 @@
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <div class="text-4xl font-black">${{ number_format(($sales ?? collect())->avg('total_amount') ?? 0, 2) }}</div>
+                        <div class="text-4xl font-black">PKR {{ number_format(($sales ?? collect())->avg('total_amount') ?? 0, 2) }}</div>
                         <div class="flex items-center text-violet-200 text-sm font-semibold">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12,2L13.09,8.26L22,9L14.74,13.74L17.18,22L12,17L6.82,22L9.26,13.74L2,9L10.91,8.26L12,2Z"/>
@@ -149,9 +143,8 @@
             </div>
         </div>
 
-        <!-- Premium Action Center -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-            <button class="group bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:shadow-3xl transition duration-500 transform hover:scale-105 border border-blue-200/50 hover:border-blue-400/50 hover:bg-white text-left">
+            <a href="{{ route('director.sales.create') }}" class="group bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:shadow-3xl transition duration-500 transform hover:scale-105 border border-blue-200/50 hover:border-blue-400/50 hover:bg-white text-left">
                 <div class="flex items-center">
                     <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-5 mr-6 group-hover:scale-110 transition duration-300 shadow-lg">
                         <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -164,9 +157,9 @@
                         <div class="mt-2 text-sm text-blue-600 font-bold">→ Generate Invoice</div>
                     </div>
                 </div>
-            </button>
+            </a>
 
-            <button class="group bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:shadow-3xl transition duration-500 transform hover:scale-105 border border-green-200/50 hover:border-green-400/50 hover:bg-white text-left">
+            <a href="{{ route('director.sales-payments.create') }}" class="group bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:shadow-3xl transition duration-500 transform hover:scale-105 border border-green-200/50 hover:border-green-400/50 hover:bg-white text-left">
                 <div class="flex items-center">
                     <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-5 mr-6 group-hover:scale-110 transition duration-300 shadow-lg">
                         <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -179,9 +172,9 @@
                         <div class="mt-2 text-sm text-green-600 font-bold">→ Update Payment</div>
                     </div>
                 </div>
-            </button>
+            </a>
 
-            <button class="group bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:shadow-3xl transition duration-500 transform hover:scale-105 border border-purple-200/50 hover:border-purple-400/50 hover:bg-white text-left">
+            <a href="#" class="group bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:shadow-3xl transition duration-500 transform hover:scale-105 border border-purple-200/50 hover:border-purple-400/50 hover:bg-white text-left">
                 <div class="flex items-center">
                     <div class="bg-gradient-to-r from-purple-500 to-violet-600 rounded-2xl p-5 mr-6 group-hover:scale-110 transition duration-300 shadow-lg">
                         <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -194,9 +187,9 @@
                         <div class="mt-2 text-sm text-purple-600 font-bold">→ View Reports</div>
                     </div>
                 </div>
-            </button>
+            </a>
 
-            <button class="group bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:shadow-3xl transition duration-500 transform hover:scale-105 border border-orange-200/50 hover:border-orange-400/50 hover:bg-white text-left">
+            <a href="#" class="group bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:shadow-3xl transition duration-500 transform hover:scale-105 border border-orange-200/50 hover:border-orange-400/50 hover:bg-white text-left">
                 <div class="flex items-center">
                     <div class="bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl p-5 mr-6 group-hover:scale-110 transition duration-300 shadow-lg">
                         <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -209,10 +202,9 @@
                         <div class="mt-2 text-sm text-orange-600 font-bold">→ Notify Customers</div>
                     </div>
                 </div>
-            </button>
+            </a>
         </div>
 
-        <!-- Premium Sales Transactions Table -->
         <div class="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden border border-gray-200/50">
             <div class="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 px-8 py-6 border-b border-gray-200">
                 <div class="flex items-center justify-between">
@@ -224,9 +216,9 @@
                         <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-bold">
                             {{ ($sales ?? collect())->count() }} Total Records
                         </span>
-                        <button class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-2 rounded-2xl font-bold hover:from-blue-600 hover:to-indigo-700 transition duration-300">
+                        <a href="{{ route('director.sales.export') }}" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-2 rounded-2xl font-bold hover:from-blue-600 hover:to-indigo-700 transition duration-300">
                             Export Data
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -274,8 +266,8 @@
                                     <div class="text-sm font-semibold text-gray-500">{{ $sale->invoice_date ? $sale->invoice_date->format('g:i A') : '' }}</div>
                                 </td>
                                 <td class="px-8 py-6">
-                                    <div class="text-2xl font-black text-emerald-600">${{ number_format($sale->total_amount ?? 0, 2) }}</div>
-                                    <div class="text-sm font-semibold text-gray-500">{{ $sale->currency ?? 'USD' }}</div>
+                                    <div class="text-2xl font-black text-emerald-600">PKR {{ number_format($sale->total_amount ?? 0, 2) }}</div>
+                                    <div class="text-sm font-semibold text-gray-500">{{ $sale->currency ?? 'PKR' }}</div>
                                 </td>
                                 <td class="px-8 py-6">
                                     @php
@@ -297,10 +289,10 @@
                                         $paidAmount = ($sale->total_amount ?? 0) - ($sale->remaining_amount ?? 0);
                                         $remainingAmount = $sale->remaining_amount ?? 0;
                                     @endphp
-                                    <div class="text-lg font-bold text-blue-600">${{ number_format($paidAmount, 2) }}</div>
+                                    <div class="text-lg font-bold text-blue-600">PKR {{ number_format($paidAmount, 2) }}</div>
                                     <div class="text-sm font-semibold {{ $remainingAmount > 0 ? 'text-red-600' : 'text-green-600' }}">
                                         @if($remainingAmount > 0)
-                                            ${{ number_format($remainingAmount, 2) }} due
+                                            PKR {{ number_format($remainingAmount, 2) }} due
                                         @else
                                             Balance cleared
                                         @endif
@@ -308,13 +300,13 @@
                                 </td>
                                 <td class="px-8 py-6">
                                     <div class="flex items-center space-x-3">
-                                        <button class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-xl font-bold transition duration-300 shadow-md hover:shadow-lg">
+                                        <a href="{{ route('director.sales.show', $sale->id) }}" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-xl font-bold transition duration-300 shadow-md hover:shadow-lg">
                                             View
-                                        </button>
+                                        </a>
                                         @if(($sale->remaining_amount ?? 0) > 0)
-                                            <button class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-4 py-2 rounded-xl font-bold transition duration-300 shadow-md hover:shadow-lg">
+                                            <a href="{{ route('director.sales-payments.create', ['invoice_id' => $sale->id]) }}" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-4 py-2 rounded-xl font-bold transition duration-300 shadow-md hover:shadow-lg">
                                                 Pay
-                                            </button>
+                                            </a>
                                         @endif
                                         <button class="bg-purple-100 hover:bg-purple-200 text-purple-700 px-4 py-2 rounded-xl font-bold transition duration-300 shadow-md hover:shadow-lg">
                                             Print
@@ -335,9 +327,9 @@
                                             <p class="text-2xl font-black text-gray-600">No Sales Transactions Found</p>
                                             <p class="text-lg text-gray-500 font-semibold mt-2">Create your first sales invoice to get started</p>
                                         </div>
-                                        <button class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-blue-600 hover:to-indigo-700 transition duration-300 shadow-xl">
+                                        <a href="{{ route('director.sales.create') }}" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-blue-600 hover:to-indigo-700 transition duration-300 shadow-xl">
                                             Create First Sale
-                                        </button>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
@@ -346,7 +338,6 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
             @if(($sales ?? collect())->hasPages())
                 <div class="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-t border-gray-200">
                     <div class="flex items-center justify-between">
