@@ -12,6 +12,7 @@ use App\Http\Controllers\Director\SalesInvoiceController;
 use App\Http\Controllers\Director\SalesPaymentController;
 use App\Http\Controllers\Director\ExpenseController;
 use App\Http\Controllers\Director\SupplierController;
+use App\Http\Controllers\Director\InventoryController;
 use App\Http\Controllers\Owner\ReportController;
 use App\Http\Controllers\Owner\UserController;
 use App\Http\Controllers\Owner\SettingController;
@@ -41,7 +42,6 @@ Route::middleware(['auth', 'investor'])->group(function () {
 // Owner routes
 Route::middleware(['auth', 'owner'])->prefix('owner')->name('owner.')->group(function () {
     Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/investors', [OwnerDashboardController::class, 'investors'])->name('investors.index');
     Route::resource('investors', InvestorManagementController::class);
     
     // Investor Requests Routes
@@ -87,11 +87,12 @@ Route::middleware(['auth', 'role:director,owner'])->prefix('director')->name('di
     Route::get('/dashboard', [DirectorDashboardController::class, 'index'])->name('dashboard');
     Route::resource('purchases', PurchaseInvoiceController::class);
     Route::resource('sales', SalesInvoiceController::class);
+    Route::get('sales/export', [SalesInvoiceController::class, 'export'])->name('sales.export');
     Route::resource('sales-payments', SalesPaymentController::class);
     Route::resource('expenses', ExpenseController::class);
     Route::resource('suppliers', SupplierController::class);
+    Route::resource('inventory', InventoryController::class);
     Route::get('/customers', [DirectorDashboardController::class, 'customers'])->name('customers.index');
-    Route::get('/inventory', [DirectorDashboardController::class, 'inventory'])->name('inventory.index');
     Route::get('/payments', [DirectorDashboardController::class, 'payments'])->name('payments.index');
 });
 
