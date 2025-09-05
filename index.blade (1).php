@@ -7,13 +7,12 @@
         <h1 class="text-4xl font-extrabold text-gray-900">Expense Management</h1>
         <div class="flex space-x-4">
             <input type="text" placeholder="Search expenses..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-            <button class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition duration-200">
+            <a href="{{ route('director.expenses.create') }}" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition duration-200">
                 Add Expense
-            </button>
+            </a>
         </div>
     </div>
 
-    <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div class="bg-red-600 rounded-xl p-6 text-white">
             <h3 class="text-sm font-semibold uppercase tracking-wide text-red-200">Total Expenses</h3>
@@ -33,7 +32,6 @@
         </div>
     </div>
 
-    <!-- Expenses Table -->
     <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-lg bg-white">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -48,25 +46,29 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 bg-white">
-                @forelse (range(1, 10) as $i)
+                @forelse ($expenses as $expense)
                     <tr class="hover:bg-gray-50 transition-colors duration-200">
-                        <td class="whitespace-nowrap px-6 py-4 font-medium text-gray-900">EXP-{{ sprintf('%04d', $i) }}</td>
-                        <td class="px-6 py-4 text-gray-600 max-w-xs truncate">{{ ['Office Supplies', 'Marketing Campaign', 'Equipment Purchase', 'Travel Expenses', 'Utilities', 'Software License'][array_rand(['Office Supplies', 'Marketing Campaign', 'Equipment Purchase', 'Travel Expenses', 'Utilities', 'Software License'])] }}</td>
-                        <td class="whitespace-nowrap px-6 py-4 text-gray-600">{{ ['Operations', 'Marketing', 'IT', 'Travel', 'Utilities', 'Software'][array_rand(['Operations', 'Marketing', 'IT', 'Travel', 'Utilities', 'Software'])] }}</td>
-                        <td class="whitespace-nowrap px-6 py-4 font-semibold text-gray-900">${{ number_format(rand(500, 2500), 2) }}</td>
-                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ now()->subDays(rand(1, 30))->format('d M, Y') }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 font-medium text-gray-900">EXP-{{ $expense->id }}</td>
+                        <td class="px-6 py-4 text-gray-600 max-w-xs truncate">{{ $expense->expense_title }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 text-gray-600">{{ $expense->category->name }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 font-semibold text-gray-900">${{ number_format($expense->amount, 2) }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ $expense->expense_date->format('d M, Y') }}</td>
                         <td class="whitespace-nowrap px-6 py-4">
-                            @php $status = ['approved', 'pending', 'rejected'][array_rand(['approved', 'pending', 'rejected'])] @endphp
-                            <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 
-                                @if($status === 'approved') bg-green-100 text-green-800
-                                @elseif($status === 'pending') bg-yellow-100 text-yellow-800
-                                @else bg-red-100 text-red-800 @endif">
-                                {{ ucfirst($status) }}
+                            @php
+                                $statusColors = [
+                                    'pending' => 'bg-yellow-100 text-yellow-800',
+                                    'approved' => 'bg-green-100 text-green-800',
+                                    'rejected' => 'bg-red-100 text-red-800',
+                                ];
+                                $statusClass = $statusColors[$expense->status] ?? 'bg-gray-100 text-gray-800';
+                            @endphp
+                            <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 {{ $statusClass }}">
+                                {{ ucfirst($expense->status) }}
                             </span>
                         </td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm font-medium space-x-2">
-                            <a href="#" class="text-blue-600 hover:text-blue-900">View</a>
-                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                            <a href="{{ route('director.expenses.show', $expense->id) }}" class="text-blue-600 hover:text-blue-900">View</a>
+                            <a href="{{ route('director.expenses.edit', $expense->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
                         </td>
                     </tr>
                 @empty
@@ -78,14 +80,8 @@
         </table>
     </div>
 
-    <!-- Pagination -->
     <div class="mt-6 flex justify-center">
-        <div class="flex space-x-1">
-            <button class="px-3 py-2 text-sm leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100">Previous</button>
-            <button class="px-3 py-2 text-sm leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">1</button>
-            <button class="px-3 py-2 text-sm leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">2</button>
-            <button class="px-3 py-2 text-sm leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100">Next</button>
-        </div>
+        {{ $expenses->links() }}
     </div>
 </div>
 
