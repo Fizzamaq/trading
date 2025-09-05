@@ -100,4 +100,34 @@ class SalesPaymentController extends Controller
                 ->withInput();
         }
     }
+
+    public function show(SalesPayment $payment)
+    {
+        $payment->load('customer');
+        return view('director.payments.show', compact('payment'));
+    }
+
+    public function edit(SalesPayment $payment)
+    {
+        $customers = Customer::all();
+        $payment->load('customer');
+        return view('director.payments.edit', compact('payment', 'customers'));
+    }
+
+    public function update(Request $request, SalesPayment $payment)
+    {
+        $validated = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'payment_date' => 'required|date',
+            'payment_amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|string|max:255',
+        ]);
+        
+        $original = $payment->getOriginal();
+        $payment->update($validated);
+        $this->activityLogService->logModelUpdated($payment, $original);
+        
+        return redirect()->route('director.payments.index')
+            ->with('success', 'Payment updated successfully!');
+    }
 }
