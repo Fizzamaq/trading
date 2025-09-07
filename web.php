@@ -37,7 +37,10 @@ Route::middleware(['auth'])->get('/home', [HomeController::class, 'index'])->nam
 Route::middleware(['auth', 'investor'])->prefix('investor')->name('investor.')->group(function () {
     // Onboarding routes do not require the 'investor.onboarding' middleware
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
-    Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
+    Route::post('/onboarding/complete/step1', [OnboardingController::class, 'completeStep1'])->name('onboarding.complete.step1');
+    Route::post('/onboarding/complete/step2', [OnboardingController::class, 'completeStep2'])->name('onboarding.complete.step2');
+    Route::post('/onboarding/complete/step3', [OnboardingController::class, 'completeStep3'])->name('onboarding.complete.step3');
+    
     
     // The dashboard and other investor pages require the onboarding to be complete
     Route::middleware(['investor.onboarding'])->group(function() {
