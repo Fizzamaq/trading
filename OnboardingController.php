@@ -19,7 +19,7 @@ class OnboardingController extends Controller
         $this->middleware(['auth', 'investor']);
     }
 
-    public function show()
+    public function show(Request $request)
     {
         $user = Auth::user();
         $investor = $user->investor;
@@ -28,45 +28,72 @@ class OnboardingController extends Controller
             return redirect()->route('investor.dashboard');
         }
 
-        return view('auth.onboarding', compact('user', 'investor'));
+        // Determine the current step from the request or default to step 1
+        $step = $request->input('step', 1);
+
+        // Retrieve saved data from session
+        $onboardingData = $request->session()->get('onboarding_data', []);
+
+        return view('auth.onboarding', compact('user', 'investor', 'step', 'onboardingData'));
     }
 
-    public function complete(Request $request)
+    public function completeStep1(Request $request)
     {
-        $user = Auth::user();
-        $investor = $user->investor;
-
-        if (!$investor) {
-            return redirect()->route('login')->with('error', 'Investor record not found.');
-        }
-
-        if ($investor->onboarding_completed) {
-            return redirect()->route('investor.dashboard');
-        }
-
         $request->validate([
             'password' => 'required|string|min:8|confirmed',
+        ]);
+    
+        $request->session()->put('onboarding_data.password', Hash::make($request->password));
+        
+        return redirect()->route('investor.onboarding.show', ['step' => 2]);
+    }
+    
+    public function completeStep2(Request $request)
+    {
+        $request->validate([
             'bank_account_number' => 'required|string|max:50',
             'bank_name' => 'required|string|max:100',
             'account_holder_name' => 'required|string|max:255',
+        ]);
+        
+        $onboardingData = $request->session()->get('onboarding_data', []);
+        $onboardingData['bank_account_number'] = $request->bank_account_number;
+        $onboardingData['bank_name'] = $request->bank_name;
+        $onboardingData['account_holder_name'] = $request->account_holder_name;
+        
+        $request->session()->put('onboarding_data', $onboardingData);
+        
+        return redirect()->route('investor.onboarding.show', ['step' => 3]);
+    }
+    
+    public function completeStep3(Request $request)
+    {
+        $user = Auth::user();
+        $investor = $user->investor;
+        
+        $request->validate([
             'declaration_signed' => 'required|accepted',
         ]);
 
-        // Update password
+        $onboardingData = $request->session()->get('onboarding_data', []);
+
+        // Finalize all updates using data from the session
         $user->update([
-            'password' => Hash::make($request->password),
+            'password' => $onboardingData['password'],
         ]);
 
-        // Update investor information
         $investor->update([
-            'bank_account_number' => $request->bank_account_number,
-            'bank_name' => $request->bank_name,
-            'account_holder_name' => $request->account_holder_name,
+            'bank_account_number' => $onboardingData['bank_account_number'],
+            'bank_name' => $onboardingData['bank_name'],
+            'account_holder_name' => $onboardingData['account_holder_name'],
             'declaration_signed' => true,
             'declaration_signed_at' => now(),
             'onboarding_completed' => true,
             'onboarding_completed_at' => now(),
         ]);
+        
+        // Clear session data
+        $request->session()->forget('onboarding_data');
 
         // Log the onboarding completion
         $this->activityLogService->logActivity([
@@ -75,7 +102,7 @@ class OnboardingController extends Controller
             'model_type' => 'App\\\\Models\\\\Investor',
             'model_id' => $investor->id,
         ]);
-
+        
         return redirect()->route('investor.dashboard')->with('success', 'Onboarding completed successfully!');
     }
 }
