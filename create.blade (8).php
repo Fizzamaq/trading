@@ -1,3 +1,5 @@
+{{-- resources/views/director/payments/create.blade.php --}}
+
 @extends('layouts.director')
 @section('title', 'Record Sales Payment')
 @section('content')
