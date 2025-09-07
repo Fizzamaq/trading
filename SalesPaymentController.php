@@ -44,6 +44,13 @@ class SalesPaymentController extends Controller
         return view('director.payments.index', compact('invoices', 'search'));
     }
 
+    public function create()
+    {
+        $customers = Customer::all();
+        $salesInvoices = SalesInvoice::where('status', '!=', 'paid')->get();
+        return view('director.payments.create', compact('customers', 'salesInvoices'));
+    }
+
     public function recordPayment(SalesInvoice $salesInvoice)
     {
         $salesInvoice->load('customer');
