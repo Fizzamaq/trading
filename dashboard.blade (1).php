@@ -39,7 +39,7 @@
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <div class="text-4xl font-black">${{ number_format($totalInvestment ?? 50000, 2) }}</div>
+                        <div class="text-4xl font-black">PKR{{ number_format($totalInvestment ?? 50000, 2) }}</div>
                         <div class="flex items-center text-emerald-200 text-sm font-semibold">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M7,14L12,9L17,14H7Z"/>
@@ -66,7 +66,7 @@
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <div class="text-4xl font-black">${{ number_format($monthlyReturns ?? 625, 2) }}</div>
+                        <div class="text-4xl font-black">PKR{{ number_format($monthlyReturns ?? 625, 2) }}</div>
                         <div class="flex items-center text-blue-200 text-sm font-semibold">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M7,14L12,9L17,14H7Z"/>
@@ -93,7 +93,7 @@
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <div class="text-4xl font-black">${{ number_format($totalEarnings ?? 7500, 2) }}</div>
+                        <div class="text-4xl font-black">PKR{{ number_format($totalEarnings ?? 7500, 2) }}</div>
                         <div class="flex items-center text-amber-200 text-sm font-semibold">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
@@ -149,15 +149,15 @@
                     <div class="space-y-4">
                         <div class="flex justify-between items-center p-4 bg-green-50 rounded-xl">
                             <span class="font-semibold text-gray-700">Initial Investment</span>
-                            <span class="text-2xl font-bold text-green-600">${{ number_format($totalInvestment ?? 50000, 2) }}</span>
+                            <span class="text-2xl font-bold text-green-600">PKR{{ number_format($totalInvestment ?? 50000, 2) }}</span>
                         </div>
                         <div class="flex justify-between items-center p-4 bg-blue-50 rounded-xl">
                             <span class="font-semibold text-gray-700">Current Value</span>
-                            <span class="text-2xl font-bold text-blue-600">${{ number_format(($totalInvestment ?? 50000) + ($totalEarnings ?? 7500), 2) }}</span>
+                            <span class="text-2xl font-bold text-blue-600">PKR{{ number_format(($totalInvestment ?? 50000) + ($totalEarnings ?? 7500), 2) }}</span>
                         </div>
                         <div class="flex justify-between items-center p-4 bg-purple-50 rounded-xl border-2 border-purple-200">
                             <span class="font-bold text-gray-800">Net Gain</span>
-                            <span class="text-2xl font-bold text-purple-600">${{ number_format($totalEarnings ?? 7500, 2) }}</span>
+                            <span class="text-2xl font-bold text-purple-600">PKR{{ number_format($totalEarnings ?? 7500, 2) }}</span>
                         </div>
                     </div>
                 </div>
@@ -179,7 +179,7 @@
                                         <p class="text-gray-500 font-semibold text-sm">Profit sharing payment</p>
                                     </div>
                                 </div>
-                                <span class="font-black text-xl text-green-600">+${{ number_format(rand(500, 800), 2) }}</span>
+                                <span class="font-black text-xl text-green-600">+PKR{{ number_format(rand(500, 800), 2) }}</span>
                             </div>
                         @endfor
                     </div>
