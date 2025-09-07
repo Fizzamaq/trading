@@ -24,13 +24,12 @@ class DirectorDashboardController extends Controller
 public function index()
 {
     // Get recent sales
-    $recentSales = SalesInvoice::with('customer')
+    $sales = SalesInvoice::with('customer')
         ->orderBy('created_at', 'desc')
-        ->limit(5)
-        ->get();
+        ->paginate(15);
     
     // Calculate total sales for the dashboard card
-    $totalSalesAmount = $recentSales->sum('total_amount');
+    $totalSalesAmount = $sales->sum('total_amount');
 
     // Get recent purchases 
     $recentPurchases = PurchaseInvoice::with('supplier')
@@ -60,9 +59,6 @@ public function index()
         ->get();
 
     // If collections are empty, create empty collections to avoid errors
-    if (!$recentSales) {
-        $recentSales = collect();
-    }
     if (!$recentPurchases) {
         $recentPurchases = collect();
     }
@@ -74,7 +70,7 @@ public function index()
     }
 
     return view('director.dashboard', compact(
-        'recentSales',
+        'sales',
         'totalSalesAmount',
         'recentPurchases',
         'activeCustomers', 
@@ -119,12 +115,6 @@ public function inventory()
     return view('director.inventory.index', compact('inventoryItems'));
 }
 
-public function payments()
-{
-    // Fetch paginated sales payments with customer relation
-    $payments = SalesPayment::with('customer')->paginate(15);
-    return view('director.payments.index', compact('payments'));
-}
 
 public function expenses()
 {
