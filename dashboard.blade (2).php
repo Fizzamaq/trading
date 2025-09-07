@@ -1,3 +1,5 @@
+{{-- resources/views/director/dashboard.blade.php --}}
+
 @extends('layouts.director')
 @section('title', 'Director Dashboard')
 @section('content')
@@ -57,7 +59,7 @@
                             </svg>
                             +18.5% growth rate
                         </div>
-                        <div class="text-emerald-100 text-xs">{{ ($recentSales ?? collect())->count() }} transactions processed</div>
+                        <div class="text-emerald-100 text-xs">{{ ($sales ?? collect())->count() }} transactions processed</div>
                     </div>
                 </div>
             </div>
@@ -273,6 +275,7 @@
                                         $statusConfig = [
                                             'paid' => ['bg-emerald-100 text-emerald-800 border-emerald-300', 'Fully Paid'],
                                             'pending' => ['bg-amber-100 text-amber-800 border-amber-300', 'Payment Pending'],
+                                            'partially_paid' => ['bg-amber-100 text-amber-800 border-amber-300', 'Payment Pending'],
                                             'overdue' => ['bg-red-100 text-red-800 border-red-300', 'Payment Overdue'],
                                             'cancelled' => ['bg-gray-100 text-gray-800 border-gray-300', 'Cancelled']
                                         ];
@@ -302,7 +305,7 @@
                                             View
                                         </a>
                                         @if(($sale->remaining_amount ?? 0) > 0)
-                                            <a href="{{ route('director.sales-payments.create', ['invoice_id' => $sale->id]) }}" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-4 py-2 rounded-xl font-bold transition duration-300 shadow-md hover:shadow-lg">
+                                            <a href="{{ route('director.sales-payments.record', ['salesInvoice' => $sale->id]) }}" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-4 py-2 rounded-xl font-bold transition duration-300 shadow-md hover:shadow-lg">
                                                 Pay
                                             </a>
                                         @endif
@@ -335,6 +338,19 @@
                     </tbody>
                 </table>
             </div>
+
+            @if($sales->hasPages())
+                <div class="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm font-semibold text-gray-600">
+                            Showing {{ $sales->firstItem() }} to {{ $sales->lastItem() }} of {{ $sales->total() }} transactions
+                        </div>
+                        <div class="flex space-x-2">
+                            {{ $sales->links() }}
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </div>
