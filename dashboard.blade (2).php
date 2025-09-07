@@ -339,11 +339,11 @@
                 </table>
             </div>
 
-            @if($sales->hasPages())
+            @if(($sales ?? collect())->hasPages())
                 <div class="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-t border-gray-200">
                     <div class="flex items-center justify-between">
                         <div class="text-sm font-semibold text-gray-600">
-                            Showing {{ $sales->firstItem() }} to {{ $sales->lastItem() }} of {{ $sales->total() }} transactions
+                            Showing {{ ($sales ?? collect())->firstItem() }} to {{ ($sales ?? collect())->lastItem() }} of {{ ($sales ?? collect())->total() ?? 0 }} transactions
                         </div>
                         <div class="flex space-x-2">
                             {{ $sales->links() }}
