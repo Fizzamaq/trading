@@ -99,6 +99,7 @@ Route::middleware(['auth', 'role:director,owner'])->prefix('director')->name('di
 
     // Director Payments (Sales) Routes
     Route::get('sales-payments', [SalesPaymentController::class, 'index'])->name('sales-payments.index');
+    Route::get('sales-payments/create', [SalesPaymentController::class, 'create'])->name('sales-payments.create');
     Route::get('sales-payments/record/{salesInvoice}', [SalesPaymentController::class, 'recordPayment'])->name('sales-payments.record');
     Route::post('sales-payments/store', [SalesPaymentController::class, 'store'])->name('sales-payments.store');
     
@@ -112,7 +113,7 @@ Route::middleware(['auth', 'role:director,owner'])->prefix('director')->name('di
     Route::resource('suppliers', SupplierController::class);
     Route::resource('inventory', InventoryController::class);
     Route::get('/customers', [DirectorDashboardController::class, 'customers'])->name('customers.index');
-    Route::get('/payments', [DirectorDashboardController::class, 'payments'])->name('payments.index');
+    Route::get('/payments', [SalesPaymentController::class, 'index'])->name('payments.index');
 });
 
 // Debug route - remove in production
