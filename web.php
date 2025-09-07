@@ -34,9 +34,17 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->get('/home', [HomeController::class, 'index'])->name('home');
 
 // Investor onboarding routes
-Route::middleware(['auth', 'investor'])->group(function () {
-    Route::get('/investor/onboarding', [OnboardingController::class, 'show'])->name('investor.onboarding');
-    Route::post('/investor/onboarding/complete', [OnboardingController::class, 'complete'])->name('investor.onboarding.complete');
+Route::middleware(['auth', 'investor'])->prefix('investor')->name('investor.')->group(function () {
+    // Onboarding routes do not require the 'investor.onboarding' middleware
+    Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
+    Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
+    
+    // The dashboard and other investor pages require the onboarding to be complete
+    Route::middleware(['investor.onboarding'])->group(function() {
+        Route::get('/dashboard', [InvestorDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/requests/create', [InvestorDashboardController::class, 'createRequest'])->name('requests.create');
+        Route::post('/requests', [InvestorDashboardController::class, 'storeRequest'])->name('requests.store');
+    });
 });
 
 // Owner routes
@@ -69,7 +77,7 @@ Route::middleware(['auth', 'owner'])->prefix('owner')->name('owner.')->group(fun
         Route::get('profit-loss', [ReportController::class, 'profitAndLoss'])->name('profit-loss');
         Route::get('investor-pl/{investor}', [ReportController::class, 'investorProfitAndLoss'])->name('investor-pl');
         Route::get('ar-aging', [ReportController::class, 'arAging'])->name('ar-aging');
-        Route::get('ap-aging', [ReportController::class, 'apAging'])->name('ap-aging');
+        Route::get('ap-aging', [ReportController::class, 'ap-aging'])->name('ap-aging');
     });
     
     // New Owner Routes from Sidebar
@@ -82,26 +90,29 @@ Route::middleware(['auth', 'owner'])->prefix('owner')->name('owner.')->group(fun
     Route::get('help-and-support', [HelpAndSupportController::class, 'index'])->name('help-and-support');
 });
 
-// Director routes - CLEAN VERSION
+// Director routes
 Route::middleware(['auth', 'role:director,owner'])->prefix('director')->name('director.')->group(function () {
     Route::get('/dashboard', [DirectorDashboardController::class, 'index'])->name('dashboard');
     Route::resource('purchases', PurchaseInvoiceController::class);
     Route::resource('sales', SalesInvoiceController::class);
     Route::get('sales/export', [SalesInvoiceController::class, 'export'])->name('sales.export');
-    Route::resource('sales-payments', SalesPaymentController::class);
+
+    // Director Payments (Sales) Routes
+    Route::get('sales-payments', [SalesPaymentController::class, 'index'])->name('sales-payments.index');
+    Route::get('sales-payments/record/{salesInvoice}', [SalesPaymentController::class, 'recordPayment'])->name('sales-payments.record');
+    Route::post('sales-payments/store', [SalesPaymentController::class, 'store'])->name('sales-payments.store');
+    
+    // Resource routes for sales-payments are now explicitly defined
+    Route::get('sales-payments/{sales_payment}', [SalesPaymentController::class, 'show'])->name('sales-payments.show');
+    Route::get('sales-payments/{sales_payment}/edit', [SalesPaymentController::class, 'edit'])->name('sales-payments.edit');
+    Route::patch('sales-payments/{sales_payment}', [SalesPaymentController::class, 'update'])->name('sales-payments.update');
+    Route::delete('sales-payments/{sales_payment}', [SalesPaymentController::class, 'destroy'])->name('sales-payments.destroy');
+
     Route::resource('expenses', ExpenseController::class);
     Route::resource('suppliers', SupplierController::class);
     Route::resource('inventory', InventoryController::class);
     Route::get('/customers', [DirectorDashboardController::class, 'customers'])->name('customers.index');
     Route::get('/payments', [DirectorDashboardController::class, 'payments'])->name('payments.index');
-});
-
-// Investor routes
-Route::middleware(['auth', 'investor', 'investor.onboarding'])->prefix('investor')->name('investor.')->group(function () {
-    Route::get('/dashboard', [InvestorDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/requests/create', [InvestorDashboardController::class, 'createRequest'])->name('requests.create');
-    Route::post('/requests', [InvestorDashboardController::class, 'storeRequest'])->name('requests.store');
-    Route::get('/investors', [OwnerDashboardController::class, 'investors'])->name('owner.investors.index');
 });
 
 // Debug route - remove in production
