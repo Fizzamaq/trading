@@ -53,7 +53,7 @@ class LoginController extends Controller
                     return redirect()->intended(route('director.dashboard'));
                 case 'investor':
                     if ($user->investor && !$user->investor->onboarding_completed) {
-                        return redirect()->route('investor.onboarding');
+                        return redirect()->route('investor.onboarding.show');
                     }
                     return redirect()->intended(route('investor.dashboard'));
                 default:
