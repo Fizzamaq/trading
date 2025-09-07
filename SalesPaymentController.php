@@ -23,24 +23,42 @@ class SalesPaymentController extends Controller
         $this->activityLogService = $activityLogService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $payments = SalesPayment::with(['customer', 'creator'])
-            ->orderBy('payment_date', 'desc')
-            ->paginate(15);
-        return view('director.payments.index', compact('payments'));
+        $query = SalesInvoice::with('customer')
+            ->orderBy('invoice_date', 'desc');
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'like', '%' . $search . '%')
+                    ->orWhereHas('customer', function ($cq) use ($search) {
+                        $cq->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+        
+        $invoices = $query->paginate(15);
+        $search = $request->input('search');
+
+        return view('director.payments.index', compact('invoices', 'search'));
     }
 
-    public function create()
+    public function recordPayment(SalesInvoice $salesInvoice)
     {
-        $customers = Customer::where('is_active', true)->get();
-        return view('director.payments.create', compact('customers'));
+        $salesInvoice->load('customer');
+
+        if ($salesInvoice->status == 'paid') {
+            return redirect()->route('director.sales-payments.index')
+                ->with('error', 'This invoice has already been fully paid.');
+        }
+
+        return view('director.payments.record', compact('salesInvoice'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'customer_id' => 'required|exists:customers,id',
             'payment_date' => 'required|date',
             'payment_amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|string|max:255',
@@ -63,7 +81,7 @@ class SalesPaymentController extends Controller
             // Create the new payment record
             $payment = SalesPayment::create([
                 'payment_reference' => 'PAY-' . now()->format('Ymd') . '-' . (SalesPayment::count() + 1),
-                'customer_id' => $request->customer_id,
+                'customer_id' => $salesInvoice->customer_id,
                 'payment_date' => $request->payment_date,
                 'payment_amount' => $request->payment_amount,
                 'payment_method' => $request->payment_method,
@@ -74,7 +92,6 @@ class SalesPaymentController extends Controller
             $salesInvoice->paid_amount += $payment->payment_amount;
             $salesInvoice->remaining_amount -= $payment->payment_amount;
 
-            // Update status based on remaining amount
             if ($salesInvoice->remaining_amount <= 0) {
                 $salesInvoice->status = 'paid';
                 $salesInvoice->settled_date = $payment->payment_date;
