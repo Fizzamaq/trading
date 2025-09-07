@@ -35,13 +35,11 @@ Route::middleware(['auth'])->get('/home', [HomeController::class, 'index'])->nam
 
 // Investor onboarding routes
 Route::middleware(['auth', 'investor'])->prefix('investor')->name('investor.')->group(function () {
-    // These routes handle the onboarding process and must be outside the 'investor.onboarding' middleware
+    // Onboarding routes do not require the 'investor.onboarding' middleware
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
-    Route::post('/onboarding/complete/step1', [OnboardingController::class, 'completeStep1'])->name('onboarding.complete.step1');
-    Route::post('/onboarding/complete/step2', [OnboardingController::class, 'completeStep2'])->name('onboarding.complete.step2');
-    Route::post('/onboarding/complete/step3', [OnboardingController::class, 'completeStep3'])->name('onboarding.complete.step3');
-
-    // The dashboard and other investor pages are only accessible after onboarding is complete
+    Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
+    
+    // The dashboard and other investor pages require the onboarding to be complete
     Route::middleware(['investor.onboarding'])->group(function() {
         Route::get('/dashboard', [InvestorDashboardController::class, 'index'])->name('dashboard');
         Route::get('/requests/create', [InvestorDashboardController::class, 'createRequest'])->name('requests.create');
@@ -101,6 +99,7 @@ Route::middleware(['auth', 'role:director,owner'])->prefix('director')->name('di
 
     // Director Payments (Sales) Routes
     Route::get('sales-payments', [SalesPaymentController::class, 'index'])->name('sales-payments.index');
+    Route::get('sales-payments/create', [SalesPaymentController::class, 'create'])->name('sales-payments.create');
     Route::get('sales-payments/record/{salesInvoice}', [SalesPaymentController::class, 'recordPayment'])->name('sales-payments.record');
     Route::post('sales-payments/store', [SalesPaymentController::class, 'store'])->name('sales-payments.store');
     
